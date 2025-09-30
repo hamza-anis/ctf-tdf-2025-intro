@@ -1,0 +1,23 @@
+name: Purge Logs
+
+on:
+  workflow_run:
+    workflows: ["Chall Intro"]
+    types: [completed]
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  purge-logs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete logs for the triggering run
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          echo "Deleting logs for run $RUN_ID on $REPO"
+          gh api -X DELETE repos/$REPO/actions/runs/$RUN_ID/logs || true
